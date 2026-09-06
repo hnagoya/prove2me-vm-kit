@@ -12,7 +12,7 @@ set -euo pipefail
 LABEL="prove2me-work"
 REGION="us-ord"          # 好きなリージョンに変更可(例: ap-northeast など)
 TYPE="g6-dedicated-4"    # トイプロブレム想定。重ければ g6-dedicated-8 に変更
-IMAGE="linode/ubuntu24.04"
+IMAGE="linode/ubuntu26.04"
 DESTROY_HOURS="${DESTROY_HOURS:-6}"
 
 if [ -z "${STACKSCRIPT_ID:-}" ]; then
