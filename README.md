@@ -56,7 +56,7 @@ gh repo create prove2me-vm-kit --public --source=. --push
 
 ```bash
 # prove2me-stackscript.sh の中の
-# REPO_RAW_BASE="https://raw.githubusercontent.com/<YOUR_GITHUB_USERNAME>/prove2me-vm-kit/main"
+# REPO_RAW_BASE="https://raw.githubusercontent.com/hnagoya/prove2me-vm-kit/master"
 # を自分のユーザー名に置き換えて commit & push
 ```
 （この修正自体もClaude Code経由で行ってOK。後述の「日常の使い方」参照）

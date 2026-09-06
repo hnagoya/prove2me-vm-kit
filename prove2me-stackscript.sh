@@ -14,7 +14,7 @@
 set -e
 
 # ↓ここを自分のGitHubユーザー名/リポジトリ名に置き換える
-REPO_RAW_BASE="https://raw.githubusercontent.com/<YOUR_GITHUB_USERNAME>/prove2me-vm-kit/main"
+REPO_RAW_BASE="https://raw.githubusercontent.com/hnagoya/prove2me-vm-kit/master"
 
 curl -fsSL "${REPO_RAW_BASE}/setup.sh" -o /root/setup.sh
 chmod +x /root/setup.sh
