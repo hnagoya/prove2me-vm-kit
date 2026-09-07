@@ -9,10 +9,11 @@
 
 set -euo pipefail
 
-LABEL="prove2me-work"
-REGION="us-ord"          # 好きなリージョンに変更可(例: ap-northeast など)
-TYPE="g6-dedicated-4"    # トイプロブレム想定。重ければ g6-dedicated-8 に変更
-IMAGE="linode/ubuntu26.04"
+# 以下は .env で上書き可能。未設定時はここのデフォルト値を使う。
+LABEL="${LABEL:-prove2me-work}"
+REGION="${REGION:-us-ord}"                 # 好きなリージョンに変更可(例: ap-northeast など)
+TYPE="${TYPE:-g6-dedicated-4}"             # トイプロブレム想定。重ければ g6-dedicated-8 に変更
+IMAGE="${IMAGE:-linode/ubuntu26.04}"
 DESTROY_HOURS="${DESTROY_HOURS:-6}"
 
 if [ -z "${STACKSCRIPT_ID:-}" ]; then

@@ -87,7 +87,7 @@ linode-cli configure
 
 ```bash
 cp .env.example .env
-vim .env    # STACKSCRIPT_ID, DESTROY_TOKEN, DESTROY_HOURS を埋める
+vim .env    # STACKSCRIPT_ID, DESTROY_TOKEN, DESTROY_HOURS など を埋める
 source .env
 ```
 
@@ -193,8 +193,16 @@ systemctl stop prove2me-self-destruct.timer 2>/dev/null || true
 
 ## 5. カスタマイズ
 
-- `start.sh`内の`TYPE="g6-dedicated-4"`を変更すればインスタンスサイズを調整可能
-  (メモリを増やしたい場合は`g6-dedicated-8`など)
-- `REGION`は好きなデータセンターに変更可能(`linode-cli regions list`で一覧表示)
+VMのスペックは`.env`の環境変数で調整する(`start.sh`は未設定時のデフォルト値だけを持つ）。
+
+- `TYPE` — インスタンスサイズ。メモリを増やしたい場合は`g6-dedicated-8`など
+  (デフォルト: `g6-dedicated-4`)
+- `REGION` — データセンター。`linode-cli regions list`で一覧表示(デフォルト: `us-ord`)
+- `LABEL` — Linodeの表示名(デフォルト: `prove2me-work`)
+- `IMAGE` — ベースイメージ(デフォルト: `linode/ubuntu26.04`)
+
+いずれも`.env`に書いて`source .env`すれば`start.sh`実行時に反映される。
+`.env.example`にテンプレートあり。
+
 - Mathlibキャッシュ取得(`lake exe cache get`)が失敗した場合、初回の
   `lake build`実行時にソースからビルドされる(時間がかかるが動く)
