@@ -5,7 +5,16 @@
 
 set -euo pipefail
 
-LABEL="prove2me-work"
+# スクリプト自身のディレクトリにある .env を自動で読み込む(手動 source 不要)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "$SCRIPT_DIR/.env" ]; then
+  set -a
+  # shellcheck source=/dev/null
+  . "$SCRIPT_DIR/.env"
+  set +a
+fi
+
+LABEL="${LABEL:-prove2me-work}"
 
 ID=$(linode-cli linodes list --text --no-headers --format="id,label" \
   | awk -v l="$LABEL" '$2==l {print $1}')

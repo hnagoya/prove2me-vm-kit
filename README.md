@@ -88,10 +88,10 @@ linode-cli configure
 ```bash
 cp .env.example .env
 vim .env    # STACKSCRIPT_ID, DESTROY_TOKEN, DESTROY_HOURS など を埋める
-source .env
 ```
 
 `.env`は`.gitignore`済みなのでコミットされない。
+`start.sh` / `stop.sh` は同じディレクトリの `.env` を自動で読み込むので、手動での `source .env` は不要。
 
 ---
 
@@ -100,9 +100,11 @@ source .env
 ### VMを立てる
 
 ```bash
-source .env    # 環境変数を読み込む(シェルを開き直した時は毎回)
 ./start.sh
 ```
+
+`start.sh` / `stop.sh` はスクリプトと同じディレクトリの `.env` を自動で読み込むので、
+事前に `source .env` する必要はない。
 
 数分待つと、SSH接続先IPとコマンド例が表示される。
 
@@ -197,11 +199,11 @@ VMのスペックは`.env`の環境変数で調整する(`start.sh`は未設定�
 
 - `TYPE` — インスタンスサイズ。メモリを増やしたい場合は`g6-dedicated-8`など
   (デフォルト: `g6-dedicated-4`)
-- `REGION` — データセンター。`linode-cli regions list`で一覧表示(デフォルト: `us-ord`)
+- `REGION` — データセンター。`linode-cli regions list`で一覧表示(デフォルト: `jp-tyo-3`)
 - `LABEL` — Linodeの表示名(デフォルト: `prove2me-work`)
 - `IMAGE` — ベースイメージ(デフォルト: `linode/ubuntu26.04`)
 
-いずれも`.env`に書いて`source .env`すれば`start.sh`実行時に反映される。
+いずれも`.env`に書けば`start.sh`実行時に自動で読み込まれて反映される。
 `.env.example`にテンプレートあり。
 
 - Mathlibキャッシュ取得(`lake exe cache get`)が失敗した場合、初回の

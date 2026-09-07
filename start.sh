@@ -9,16 +9,25 @@
 
 set -euo pipefail
 
+# スクリプト自身のディレクトリにある .env を自動で読み込む(手動 source 不要)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "$SCRIPT_DIR/.env" ]; then
+  set -a
+  # shellcheck source=/dev/null
+  . "$SCRIPT_DIR/.env"
+  set +a
+fi
+
 # 以下は .env で上書き可能。未設定時はここのデフォルト値を使う。
 LABEL="${LABEL:-prove2me-work}"
-REGION="${REGION:-us-ord}"                 # 好きなリージョンに変更可(例: ap-northeast など)
+REGION="${REGION:-jp-tyo-3}"               # 好きなリージョンに変更可(linode-cli regions list で一覧)
 TYPE="${TYPE:-g6-dedicated-4}"             # トイプロブレム想定。重ければ g6-dedicated-8 に変更
 IMAGE="${IMAGE:-linode/ubuntu26.04}"
 DESTROY_HOURS="${DESTROY_HOURS:-6}"
 
 if [ -z "${STACKSCRIPT_ID:-}" ]; then
   echo "エラー: STACKSCRIPT_ID が設定されていません。"
-  echo "  cp .env.example .env  して値を埋め、 source .env してから再実行してください。"
+  echo "  cp .env.example .env  して値を埋めてから再実行してください($SCRIPT_DIR/.env は自動で読み込まれます)。"
   exit 1
 fi
 
