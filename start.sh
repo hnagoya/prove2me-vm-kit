@@ -24,6 +24,8 @@ REGION="${REGION:-jp-tyo-3}"               # 好きなリージョンに変更�
 TYPE="${TYPE:-g6-dedicated-4}"             # トイプロブレム想定。重ければ g6-dedicated-8 に変更
 IMAGE="${IMAGE:-linode/ubuntu26.04}"
 DESTROY_HOURS="${DESTROY_HOURS:-6}"
+SSH_KEY_PATH="${SSH_KEY_PATH:-$HOME/.ssh/prove2me_key}"
+SSH_PUBKEY_PATH="${SSH_KEY_PATH}.pub"
 
 if [ -z "${STACKSCRIPT_ID:-}" ]; then
   echo "エラー: STACKSCRIPT_ID が設定されていません。"
@@ -31,6 +33,14 @@ if [ -z "${STACKSCRIPT_ID:-}" ]; then
   exit 1
 fi
 
+if [ ! -f "$SSH_PUBKEY_PATH" ]; then
+  echo "エラー: SSH公開鍵が見つかりません: $SSH_PUBKEY_PATH"
+  echo "  次のコマンドで鍵ペアを作成してください:"
+  echo "    ssh-keygen -t ed25519 -f \"$SSH_KEY_PATH\" -C prove2me"
+  exit 1
+fi
+
+# root_pass はAPI必須パラメータなので生成するが、認証はSSH鍵で行うため通常使わない。
 ROOT_PASS=$(openssl rand -base64 20)
 STACKSCRIPT_DATA=$(printf '{"destroy_token":"%s","destroy_hours":"%s"}' \
   "${DESTROY_TOKEN:-}" "${DESTROY_HOURS}")
@@ -44,12 +54,16 @@ linode-cli linodes create \
   --stackscript_id "$STACKSCRIPT_ID" \
   --stackscript_data "$STACKSCRIPT_DATA" \
   --root_pass "$ROOT_PASS" \
+  --authorized_keys "$(cat "$SSH_PUBKEY_PATH")" \
   --label "$LABEL" \
   --tags prove2me \
   --booted true
 
+SSH_OPTS=(-i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no)
+
 echo ""
-echo "root パスワード(必要な場合のみ使用): $ROOT_PASS"
+echo "root パスワード: $ROOT_PASS"
+echo "  (SSH鍵認証を設定済みなので通常このパスワードは使いません。コンソールログイン用の控えです)"
 echo ""
 echo "起動とセットアップには数分かかります。IPアドレス取得中..."
 sleep 20
@@ -57,10 +71,10 @@ sleep 20
 IP=$(linode-cli linodes list --label "$LABEL" --text --no-headers --format="ipv4" | head -1)
 echo ""
 echo "=== 準備完了目安 ==="
-echo "SSH接続:  ssh root@${IP}"
-echo "セットアップ進捗確認: ssh root@${IP} 'tail -f /var/log/prove2me-setup.log'"
+echo "SSH接続:  ssh ${SSH_OPTS[*]} root@${IP}"
+echo "セットアップ進捗確認: ssh ${SSH_OPTS[*]} root@${IP} 'tail -f /var/log/prove2me-setup.log'"
 echo ""
 echo "セットアップが終わったら (ログ末尾に 'All done' と出たら):"
-echo "  ssh root@${IP}"
+echo "  ssh ${SSH_OPTS[*]} root@${IP}"
 echo "  claude"
 echo "  > Fetch https://prove2.me/start.md and follow it to set yourself up for Prove2Me. Log in with my Prove2Me API key <ここにキー>"

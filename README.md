@@ -83,11 +83,23 @@ linode-cli configure
 
 0-4と同様に**別の**トークンを作成(`Linodes` Read/Write権限)。専用に用意するのが安全。
 
-### 0-7. .envを作る
+### 0-7. SSH鍵ペアを作る
+
+VMへの接続はパスワードではなくSSH鍵認証で行う。専用の鍵ペアを1つ作っておく。
+
+```bash
+ssh-keygen -t ed25519 -f ~/.ssh/prove2me_key -C prove2me
+```
+
+- 秘密鍵: `~/.ssh/prove2me_key` / 公開鍵: `~/.ssh/prove2me_key.pub`
+- `start.sh` が VM 作成時に公開鍵を `--authorized_keys` で登録する
+- 別のパス・ファイル名にしたい場合は `.env` の `SSH_KEY_PATH` で指定する
+
+### 0-8. .envを作る
 
 ```bash
 cp .env.example .env
-vim .env    # STACKSCRIPT_ID, DESTROY_TOKEN, DESTROY_HOURS など を埋める
+vim .env    # STACKSCRIPT_ID, DESTROY_TOKEN, DESTROY_HOURS, SSH_KEY_PATH など を埋める
 ```
 
 `.env`は`.gitignore`済みなのでコミットされない。
@@ -106,19 +118,20 @@ vim .env    # STACKSCRIPT_ID, DESTROY_TOKEN, DESTROY_HOURS など を埋める
 `start.sh` / `stop.sh` はスクリプトと同じディレクトリの `.env` を自動で読み込むので、
 事前に `source .env` する必要はない。
 
-数分待つと、SSH接続先IPとコマンド例が表示される。
+数分待つと、SSH接続先IPと(鍵認証込みの)コマンド例が表示される。
+以下の `ssh` コマンドはその表示例。`SSH_KEY_PATH` を変えている場合は `-i` のパスも読み替える。
 
 ### セットアップ完了を確認
 
 ```bash
-ssh root@<表示されたIP> 'tail -f /var/log/prove2me-setup.log'
+ssh -i ~/.ssh/prove2me_key -o StrictHostKeyChecking=no root@<表示されたIP> 'tail -f /var/log/prove2me-setup.log'
 ```
 末尾に `All done. Ready for: claude` と出たら準備完了。
 
 ### 作業する
 
 ```bash
-ssh root@<IP>
+ssh -i ~/.ssh/prove2me_key -o StrictHostKeyChecking=no root@<IP>
 claude
 ```
 
