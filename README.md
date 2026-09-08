@@ -182,6 +182,8 @@ setup.sh に、Lean用のVSCode拡張の代わりにCLIだけで完結する
 
 これで手作業でのファイル編集・git操作を挟まずに、リポジトリを育てていける。
 
+`prove2me-stackscript.sh` を変更した場合は、コミット・push後に `./sync-stackscript.sh` も実行して、Linode側のStackScriptに現在の中身を反映する。
+
 ---
 
 ## 3. 安全弁: 自己破壊タイマー
