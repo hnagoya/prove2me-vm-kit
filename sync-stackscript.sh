@@ -4,6 +4,7 @@
 # 使い方: ./sync-stackscript.sh
 #
 # prove2me-stackscript.sh を編集したら、コミット・push したうえでこれを実行する。
+# Linode 側の内容と一致している場合は update をスキップする。
 
 set -euo pipefail
 
@@ -22,16 +23,31 @@ if [ -z "${STACKSCRIPT_ID:-}" ]; then
   exit 1
 fi
 
+if ! command -v jq >/dev/null 2>&1; then
+  echo "エラー: jq が見つかりません。差分チェックに必要です。"
+  echo "  次のコマンドでインストールしてください: sudo apt-get install -y jq"
+  exit 1
+fi
+
 STACKSCRIPT_FILE="$SCRIPT_DIR/prove2me-stackscript.sh"
 if [ ! -f "$STACKSCRIPT_FILE" ]; then
   echo "エラー: $STACKSCRIPT_FILE が見つかりません。"
   exit 1
 fi
 
+# Linode 側の現在のスクリプト内容を取得する(--json は配列で返るので .[0].script)
+REMOTE_SCRIPT="$(linode-cli stackscripts view "$STACKSCRIPT_ID" --json | jq -r '.[0].script')"
+LOCAL_SCRIPT="$(cat "$STACKSCRIPT_FILE")"
+
+if [ "$REMOTE_SCRIPT" = "$LOCAL_SCRIPT" ]; then
+  echo "変更なし、更新をスキップしました(StackScript ID $STACKSCRIPT_ID)。"
+  exit 0
+fi
+
 echo "=== StackScript ID $STACKSCRIPT_ID に prove2me-stackscript.sh を反映中 ==="
 
 # --script にファイル名を直接渡す方式は反映されない不具合が報告されているため、
 # cat で中身を展開して渡す。
-linode-cli stackscripts update "$STACKSCRIPT_ID" --script "$(cat "$STACKSCRIPT_FILE")"
+linode-cli stackscripts update "$STACKSCRIPT_ID" --script "$LOCAL_SCRIPT"
 
-echo "反映完了。"
+echo "更新しました。"
